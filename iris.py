@@ -5,39 +5,25 @@ Created on Thu Jul 28 13:50:39 2022
 @author: cedri
 """
 
+# =============================================================================
 # my machine learning exercise based on the popular iris flower dataset
-# https://machinelearningmastery.com/machine-learning-in-python-step-by-step/
 # https://archive.ics.uci.edu/ml/datasets/Iris
+# 
+# based on
+# https://machinelearningmastery.com/machine-learning-in-python-step-by-step/
+# =============================================================================
 
 # 1 check prerequisites
 
-# pip install scipy numpy matplotlib pandas sklearn
+# pip install scipy numpy matplotlib pandas sklearn seaborn
 
-def printPrerequisites():
-    import sys
-    print('Python: {}'.format(sys.version))
-    # scipy
-    import scipy
-    print('scipy: {}'.format(scipy.__version__))
-    # numpy
-    import numpy
-    print('numpy: {}'.format(numpy.__version__))
-    # matplotlib
-    import matplotlib
-    print('matplotlib: {}'.format(matplotlib.__version__))
-    # pandas
-    import pandas
-    print('pandas: {}'.format(pandas.__version__))
-    # scikit-learn
-    import sklearn
-    print('sklearn: {}'.format(sklearn.__version__))
-    
-printPrerequisites()
 
 # 2 load libraries
+import numpy as np
+import seaborn as sns
 from pandas import read_csv
 from pandas.plotting import scatter_matrix
-from matplotlib import pyplot
+from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import StratifiedKFold
@@ -67,7 +53,7 @@ print(df.describe()) # statistics
 # class (column) distribution
 print(df.groupby('class').size()) # each 33,33%
 
-# 5 univariate Plots (einzelne Variablen betrachten)
+# 5 UNIVARIATE PLOTS (einzelne Variablen betrachten)
 
 # extend with visualization
 
@@ -75,11 +61,11 @@ print(df.groupby('class').size()) # each 33,33%
 # Whiskers enden beim Minimum/Maximum, spätestens aber bei 1.5 IQR
 # Linien: 1. Quartil, Median, 3. Quartil (ggf. Ausreisser)
 df.plot(kind='box', subplots=True, layout=(2,2), sharex=False, sharey=False)
-pyplot.show()
+plt.show()
 
 # histograms -> overview of distribution
 df.hist()
-pyplot.show()
+plt.show()
 
 
 #ECDF = Verteilungsfunktion einer Stichprobe / die kumulierten relativen Häufigkeiten
@@ -95,12 +81,46 @@ def my_ecdf(x): # Liste!
         t.append((i[0], sum)) # kummulieren - hier mit append!
     return t
 
+#Beispiel an sepal-width
+
+ecdf_function = my_ecdf(list(df["sepal-width"].dropna().sort_values())) # Series zu Liste
+
+# brauchen Werte aus Tupel - for loop!
+
+x_value_m = [x[0] for x in ecdf_function] # x=sepal-width
+
+y_value_m = [x[1] for x in ecdf_function] # y=Kum. Verteilung
+
+plot = sns.scatterplot(x=x_value_m, y=y_value_m, color="blue")
+plot.set(xlabel="sepal-width", ylabel="kummulative Verteilung")
+
 #TODO plots aufhübschen, set?
 
-# 6 multivariate Plots (multiple variables, interaction)
+# 6 MULTIVARIATE PLOTS (multiple variables, interaction)
 
 # scatter plot matrix
 scatter_matrix(df)
-pyplot.show()
+plt.show()
+
+# correlations
+
+df_clean=df.dropna()
+df_clean=df_clean.drop("class", axis=1) # kategorial weg
+
+# match each column and calculate the corrcoef
+
+df_corr = df_clean.corr(method="pearson")
+print(df_corr)
+
+
+# let's have a closer look at the petal-width and petal-length variables (high coeff of 0.96)
+
+sns.scatterplot(data=df,x="petal-length", y="petal-width", hue=df["class"]).set(xlabel="petal-length", ylabel="petal-width")
+
+# iris-virginica has the tallest petals
+
+plt.plot()
+
+plt.show()
 
 # 7 Create Models and test accuracy on unseen data -> using validation dataset

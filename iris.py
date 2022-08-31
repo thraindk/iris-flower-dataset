@@ -6,11 +6,20 @@ Created on Thu Jul 28 13:50:39 2022
 """
 
 # =============================================================================
-# my machine learning exercise based on the popular iris flower dataset
+# my machine learning exercise using the popular iris flower dataset
 # https://archive.ics.uci.edu/ml/datasets/Iris
 # 
 # based on
 # https://machinelearningmastery.com/machine-learning-in-python-step-by-step/
+# by Jason Brownlee
+# 
+#     Installing the Python and SciPy platform.
+#     Loading the dataset.
+#     Summarizing the dataset.
+#     Visualizing the dataset.
+#     Evaluating some algorithms.
+#     Making some predictions.
+#
 # =============================================================================
 
 # 1 check prerequisites
@@ -124,3 +133,77 @@ plt.plot()
 plt.show()
 
 # 7 Create Models and test accuracy on unseen data -> using validation dataset
+
+
+# Split-out validation dataset
+array = df.values # df to array (col 4 = class)
+X = array[:,0:4] # : excluding col 4!
+y = array[:,4] # only col 4 (class)
+X_train, X_validation, Y_train, Y_validation = train_test_split(X, y, test_size=0.20, random_state=1) # 80:20
+
+# =============================================================================
+# k-FOLD CROSS VALIDATION
+
+# We will use stratified 10-fold cross validation to estimate model accuracy.
+# 
+# This will split our dataset into 10 parts, train on 9 and test on 1 and repeat for all combinations of train-test splits.
+# 
+# Stratified means that each fold or split of the dataset will aim to have the same distribution of example by class as exist in the whole training dataset.
+# We are using the metric of ‘accuracy‘ to evaluate models.
+# This is a ratio of the number of correctly predicted instances divided by the total number of instances in the dataset multiplied by 100 to give a percentage (e.g. 95% accurate).
+# =============================================================================
+
+# build model using 6 different algorithms
+
+# =============================================================================
+#     Logistic Regression (LR)
+#     Linear Discriminant Analysis (LDA)
+#     K-Nearest Neighbors (KNN).
+#     Classification and Regression Trees (CART).
+#     Gaussian Naive Bayes (NB).
+#     Support Vector Machines (SVM).
+# =============================================================================
+
+
+# Spot Check Algorithms
+models = []
+models.append(('LR', LogisticRegression(solver='liblinear', multi_class='ovr')))
+models.append(('LDA', LinearDiscriminantAnalysis()))
+models.append(('KNN', KNeighborsClassifier()))
+models.append(('CART', DecisionTreeClassifier()))
+models.append(('NB', GaussianNB()))
+models.append(('SVM', SVC(gamma='auto')))
+
+# evaluate each model in turn
+results = []
+names = []
+print("accuracy of model")
+for name, model in models:
+	kfold = StratifiedKFold(n_splits=10, random_state=1, shuffle=True)
+	cv_results = cross_val_score(model, X_train, Y_train, cv=kfold, scoring='accuracy')
+	results.append(cv_results)
+	names.append(name)
+	print('%s: %f (%f)' % (name, cv_results.mean(), cv_results.std()))
+    
+# Compare Algorithms
+plt.boxplot(results, labels=names)
+plt.title('Algorithm Comparison')
+plt.show()
+
+# svm seems to have the highest accuracy
+
+# make predicitions on the validation dataset
+
+model = SVC(gamma='auto')
+model.fit(X_train, Y_train)
+predictions = model.predict(X_validation)
+
+# evaluate prediction results
+
+print("accuracy score: ", accuracy_score(Y_validation, predictions))
+print("confusion matrix:")
+print(confusion_matrix(Y_validation, predictions))
+print("classification report:")
+print(classification_report(Y_validation, predictions))
+
+# fin

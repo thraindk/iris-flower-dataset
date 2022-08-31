@@ -1,0 +1,22 @@
+accuracy of model
+LR: 0.941667 (0.065085)
+LDA: 0.975000 (0.038188)
+KNN: 0.958333 (0.041667)
+CART: 0.941667 (0.053359)
+NB: 0.950000 (0.055277)
+SVM: 0.983333 (0.033333)
+accuracy score:  0.9666666666666667
+confusion matrix:
+[[11  0  0]
+ [ 0 12  1]
+ [ 0  0  6]]
+classification report:
+                 precision    recall  f1-score   support
+
+    Iris-setosa       1.00      1.00      1.00        11
+Iris-versicolor       1.00      0.92      0.96        13
+ Iris-virginica       0.86      1.00      0.92         6
+
+       accuracy                           0.97        30
+      macro avg       0.95      0.97      0.96        30
+   weighted avg       0.97      0.97      0.97        30
